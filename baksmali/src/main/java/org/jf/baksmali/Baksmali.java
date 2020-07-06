@@ -36,7 +36,6 @@ import org.jf.dexlib2.iface.DexFile;
 import org.jf.util.ClassFileNameHandler;
 import org.jf.util.IndentingWriter;
 
-import javax.annotation.Nullable;
 import java.io.*;
 import java.util.HashSet;
 import java.util.List;
@@ -49,7 +48,7 @@ public class Baksmali {
     }
 
     public static boolean disassembleDexFile(DexFile dexFile, File outputDir, int jobs, final BaksmaliOptions options,
-                                             @Nullable List<String> classes) {
+                                             List<String> classes) {
 
         //sort the classes, so that if we're on a case-insensitive file system and need to handle classes with file
         //name collisions, then we'll use the same name for each class, if the dex file goes through multiple
@@ -143,6 +142,16 @@ public class Baksmali {
                     System.err.println("Unable to create file " + smaliFile.toString() + " - skipping class");
                     return false;
                 }
+            }
+            else {	// dup filename ?
+            	for(int i=1;i<10000;i++) {
+            		File f = new File(smaliFile.getPath().replace(".smali", "("+i+").smali"));
+            		if(!f.exists()) {
+                        System.err.println("Rename " + smaliFile.toString() + " to " + f.toString());
+            			smaliFile = f;
+            			break;
+            		}
+            	}
             }
 
             BufferedWriter bufWriter = new BufferedWriter(new OutputStreamWriter(
